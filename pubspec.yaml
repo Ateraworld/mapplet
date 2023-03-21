@@ -1,11 +1,16 @@
 name: mapplet
 description: The easiest way to store map for offline use
 version: 1.0.1
-homepage:
+
+platforms:
+    android:
+    ios:
+    linux:
+    macos:
+    windows:
 
 environment:
     sdk: ">=2.19.4 <3.0.0"
-    flutter: ">=1.17.0"
 
 dependencies:
     flutter:
@@ -25,5 +30,3 @@ dev_dependencies:
     flutter_lints: ^2.0.0
     isar_generator: ^3.0.5
     build_runner: ^2.3.3
-
-flutter:
