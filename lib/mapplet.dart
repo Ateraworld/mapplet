@@ -18,10 +18,11 @@ export "package:mapplet/src/depot/fetch_operation.dart";
 
 export "package:mapplet/src/providers/map_tile_provider.dart";
 
-/// Entry point for handling offline maps with OffMap
+/// Entry point for handling offline maps with [Mapplet]
 class Mapplet {
   static final List<Depot> _depots = List.empty(growable: true);
 
+  /// Initiate the [Mapplet] plugin
   static Future<void> initiate(Iterable<DepotConfiguration> depots) async {
     _depots.clear();
     var initTasks = List<Future<Depot>>.empty(growable: true);
@@ -32,5 +33,6 @@ class Mapplet {
     _depots.addAll(res);
   }
 
+  /// Get a [Depot] by id
   static Depot depot(String id) => _depots.firstWhere((element) => element.config.id == id);
 }

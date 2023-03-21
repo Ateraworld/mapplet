@@ -9,6 +9,9 @@ import "package:flutter_map/flutter_map.dart";
 import "package:mapplet/src/depot/depot.dart";
 import "package:mapplet/src/providers/map_tile_provider.dart";
 
+/// The tile image provider of [Mapplet].
+///
+/// Tries to load the tile from the local [Depot], if not present, fetches it from the web
 class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
   MappletTileImageProvider({
     required this.depot,
@@ -47,8 +50,6 @@ class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
     Uint8List? bytes;
     final networkUrl = tileProvider.getTileUrl(coords, options);
     Codec codec;
-    //* Try get bytes from Isar, if not present, retrieve them from the network
-    // !
     try {
       var res = await depot.getTile(networkUrl);
       if (res == null) {

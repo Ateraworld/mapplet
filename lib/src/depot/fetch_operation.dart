@@ -6,24 +6,36 @@ import "package:mapplet/src/common/extensions.dart";
 import "package:mapplet/src/database/depot_database.dart";
 import "package:mapplet/src/database/models/tile_model.dart";
 import "package:mapplet/src/depot/depot_config.dart";
+import "package:meta/meta.dart";
 import "package:queue/queue.dart";
 import "package:quiver/iterables.dart";
 
+/// Fetch operation progress model
 class FetchProgress {
   FetchProgress({
     required this.progress,
     required this.sizeByte,
   });
+
+  /// The current amount of bytes fetched
   final int sizeByte;
+
+  /// Progress of the fetch operation
   final double progress;
 }
 
+@internal
 class TileFetchReport {
   TileFetchReport({required this.sizeByte});
 
   final int sizeByte;
 }
 
+/// Handles the fetch operation of a region.
+///
+/// Copies the [DepotConfiguration] of the corresponding [Depot].
+///
+/// Fetches the tiles in parallel and writes on the database in batches. The size of the batches is defined by the [DepotConfiguration.fetchMaxHeapSizeMib] and the level of parallelism by [DepotConfiguration.fetchMaxWorkers]
 class FetchOperation {
   FetchOperation({
     required DepotDatabase db,
