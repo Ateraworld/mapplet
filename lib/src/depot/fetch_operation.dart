@@ -1,8 +1,8 @@
 import "dart:async";
 
-import "package:flutter/widgets.dart";
 import "package:http/http.dart" as http;
 import "package:mapplet/src/common/extensions.dart";
+import "package:mapplet/src/common/logger.dart";
 import "package:mapplet/src/database/depot_database.dart";
 import "package:mapplet/src/database/models/tile_model.dart";
 import "package:mapplet/src/depot/depot_config.dart";
@@ -85,9 +85,9 @@ class FetchOperation {
           res = TileModel.factory(url, response.bodyBytes);
         } catch (error) {
           if (error is TimeoutException) {
-            debugPrint("tile fetch timeout");
+            log("tile fetch timeout");
           } else {
-            debugPrint("error on fetcher: $error");
+            log("error on fetcher: $error");
           }
           res = null;
         }
@@ -123,7 +123,7 @@ class FetchOperation {
       _workersQueue?.cancel();
     } catch (_) {}
     await _db.cleanTx();
-    debugPrint("fetch operation aborted");
+    log("fetch operation aborted");
     _abortStreamController.sink.add(null);
   }
 
@@ -135,8 +135,8 @@ class FetchOperation {
     var batchSize = _computeBatchSize(urls.length);
     var threadCount = _computeThreadCount(urls.length);
     var threadMaxHeapSizeMib = config.fetchMaxHeapSizeMiB / threadCount;
-    debugPrint(
-      "${urls.length} tiles, $threadCount threads with batches of $batchSize, max heap size ${config.fetchMaxHeapSizeMiB} MiB, $threadMaxHeapSizeMib MiB per thread",
+    log(
+      "${urls.length} tiles, $threadCount threads with batches of $batchSize, max heap size ${config.fetchMaxHeapSizeMiB.toStringAsFixed(2)} MiB, ${threadMaxHeapSizeMib.toStringAsFixed(2)} MiB per thread",
     );
 
     _fetching = true;
@@ -157,7 +157,7 @@ class FetchOperation {
       )
           .onError((error, stackTrace) {
         if (error is! QueueCancelledException) {
-          debugPrint("fetcher error $error, aborting operation");
+          log("fetcher error $error, aborting operation");
           aborted = true;
           abort();
         }

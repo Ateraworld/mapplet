@@ -6,6 +6,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_map/flutter_map.dart";
+import "package:mapplet/src/common/logger.dart";
 import "package:mapplet/src/database/models/tile_model.dart";
 import "package:mapplet/src/depot/depot.dart";
 import "package:mapplet/src/providers/map_tile_provider.dart";
@@ -77,15 +78,14 @@ class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
           },
         );
         if (evicted) {
-          await depot.db.writeSingleTile(TileModel.factory(networkUrl, bytes));
-          debugPrint("evicted, storing");
+          depot.db.writeSingleTile(TileModel.factory(networkUrl, bytes)).then((value) => log("evicted, storing"));
         }
         codec = await decode(await ImmutableBuffer.fromUint8List(bytes), allowUpscaling: false);
       } else {
         codec = await decode(await ImmutableBuffer.fromUint8List(Uint8List.fromList(res.bytes)), allowUpscaling: false);
       }
     } catch (err) {
-      debugPrint(err.toString());
+      log(err.toString());
       _errorImageBuffer ??= await ImmutableBuffer.fromUint8List((await rootBundle.load("assets/images/surface.png")).buffer.asUint8List());
       codec = await decode(_errorImageBuffer!, allowUpscaling: false);
     } finally {
