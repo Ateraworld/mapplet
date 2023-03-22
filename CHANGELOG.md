@@ -14,3 +14,7 @@
 
 * Added the configuration parameter for the number of `parallelBatchWriters` during a fetch operation
 * Added the _example_ folder
+
+## 1.0.5
+
+* Added the abort reason to the abort stream
