@@ -33,5 +33,6 @@ class Mapplet {
   }
 
   /// Get a [Depot] by id
-  static Depot depot(String id) => _depots.firstWhere((element) => element.config.id == id);
+  static Depot depot(String id) =>
+      _depots.firstWhere((element) => element.config.id == id);
 }

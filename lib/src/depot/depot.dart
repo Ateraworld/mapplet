@@ -34,7 +34,8 @@ class Depot {
   /// Close the instance and the database
   ///
   /// Delete also the database from disk with [deleteFromDisk]
-  Future<void> close({bool deleteFromDisk = false}) => _db.close(deleteFromDisk: deleteFromDisk);
+  Future<void> close({bool deleteFromDisk = false}) =>
+      _db.close(deleteFromDisk: deleteFromDisk);
 
   /// Get a tile by its url from the current [Depot], `null` if not found
   Future<TileModel?> getTile(String url) => _db.getSingleTileByUrl(url);
@@ -52,7 +53,7 @@ class Depot {
   ///
   /// The [regionId] identifies the id with which it will be possible to access the region.
   /// The [bounds] define the area to store. The class [LatLngBoundsExtensions] has useful methods to handle the creation of this boundaries
-  Future<FetchOperation> depositRegion(String regionId, LatLngBounds bounds) async {
+  FetchOperation depositRegion(String regionId, LatLngBounds bounds) {
     var layer = TileLayer(
       urlTemplate: config.urlTemplate,
       minZoom: config.minZoom,
@@ -61,7 +62,9 @@ class Depot {
     var provider = getTileProvider();
     return FetchOperation(
       regionId: regionId,
-      urls: bounds.coords(config.minZoom.round(), config.maxZoom.round()).map((e) => provider.getTileUrl(e, layer)),
+      urls: bounds
+          .coords(config.minZoom.round(), config.maxZoom.round())
+          .map((e) => provider.getTileUrl(e, layer)),
       config: config,
       db: _db,
     );

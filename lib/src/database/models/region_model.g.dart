@@ -1,6 +1,8 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of "region_model.dart";
+// ignore_for_file: prefer_double_quotes
+
+part of 'region_model.dart';
 
 // **************************************************************************
 // IsarCollectionGenerator
@@ -14,12 +16,12 @@ extension GetRegionModelCollection on Isar {
 }
 
 const RegionModelSchema = CollectionSchema(
-  name: r"RegionModel",
+  name: r'RegionModel',
   id: 3568151106562102397,
   properties: {
-    r"regionId": PropertySchema(
+    r'regionId': PropertySchema(
       id: 0,
-      name: r"regionId",
+      name: r'regionId',
       type: IsarType.string,
     )
   },
@@ -27,13 +29,13 @@ const RegionModelSchema = CollectionSchema(
   serialize: _regionModelSerialize,
   deserialize: _regionModelDeserialize,
   deserializeProp: _regionModelDeserializeProp,
-  idName: r"id",
+  idName: r'id',
   indexes: {},
   links: {
-    r"tiles": LinkSchema(
+    r'tiles': LinkSchema(
       id: 8959296370443501351,
-      name: r"tiles",
-      target: r"TileModel",
+      name: r'tiles',
+      target: r'TileModel',
       single: false,
     )
   },
@@ -41,7 +43,7 @@ const RegionModelSchema = CollectionSchema(
   getId: _regionModelGetId,
   getLinks: _regionModelGetLinks,
   attach: _regionModelAttach,
-  version: "3.0.5",
+  version: '3.0.5',
 );
 
 int _regionModelEstimateSize(
@@ -85,7 +87,7 @@ P _regionModelDeserializeProp<P>(
     case 0:
       return (reader.readString(offset)) as P;
     default:
-      throw IsarError("Unknown property with id $propertyId");
+      throw IsarError('Unknown property with id $propertyId');
   }
 }
 
@@ -97,11 +99,13 @@ List<IsarLinkBase<dynamic>> _regionModelGetLinks(RegionModel object) {
   return [object.tiles];
 }
 
-void _regionModelAttach(IsarCollection<dynamic> col, Id id, RegionModel object) {
-  object.tiles.attach(col, col.isar.collection<TileModel>(), r"tiles", id);
+void _regionModelAttach(
+    IsarCollection<dynamic> col, Id id, RegionModel object) {
+  object.tiles.attach(col, col.isar.collection<TileModel>(), r'tiles', id);
 }
 
-extension RegionModelQueryWhereSort on QueryBuilder<RegionModel, RegionModel, QWhere> {
+extension RegionModelQueryWhereSort
+    on QueryBuilder<RegionModel, RegionModel, QWhere> {
   QueryBuilder<RegionModel, RegionModel, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
@@ -109,7 +113,8 @@ extension RegionModelQueryWhereSort on QueryBuilder<RegionModel, RegionModel, QW
   }
 }
 
-extension RegionModelQueryWhere on QueryBuilder<RegionModel, RegionModel, QWhereClause> {
+extension RegionModelQueryWhere
+    on QueryBuilder<RegionModel, RegionModel, QWhereClause> {
   QueryBuilder<RegionModel, RegionModel, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
@@ -119,7 +124,8 @@ extension RegionModelQueryWhere on QueryBuilder<RegionModel, RegionModel, QWhere
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterWhereClause> idNotEqualTo(Id id) {
+  QueryBuilder<RegionModel, RegionModel, QAfterWhereClause> idNotEqualTo(
+      Id id) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -141,7 +147,8 @@ extension RegionModelQueryWhere on QueryBuilder<RegionModel, RegionModel, QWhere
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterWhereClause> idGreaterThan(Id id, {bool include = false}) {
+  QueryBuilder<RegionModel, RegionModel, QAfterWhereClause> idGreaterThan(Id id,
+      {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: id, includeLower: include),
@@ -149,7 +156,8 @@ extension RegionModelQueryWhere on QueryBuilder<RegionModel, RegionModel, QWhere
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterWhereClause> idLessThan(Id id, {bool include = false}) {
+  QueryBuilder<RegionModel, RegionModel, QAfterWhereClause> idLessThan(Id id,
+      {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: id, includeUpper: include),
@@ -174,11 +182,13 @@ extension RegionModelQueryWhere on QueryBuilder<RegionModel, RegionModel, QWhere
   }
 }
 
-extension RegionModelQueryFilter on QueryBuilder<RegionModel, RegionModel, QFilterCondition> {
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> idEqualTo(Id value) {
+extension RegionModelQueryFilter
+    on QueryBuilder<RegionModel, RegionModel, QFilterCondition> {
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> idEqualTo(
+      Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r"id",
+        property: r'id',
         value: value,
       ));
     });
@@ -191,7 +201,7 @@ extension RegionModelQueryFilter on QueryBuilder<RegionModel, RegionModel, QFilt
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r"id",
+        property: r'id',
         value: value,
       ));
     });
@@ -204,7 +214,7 @@ extension RegionModelQueryFilter on QueryBuilder<RegionModel, RegionModel, QFilt
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r"id",
+        property: r'id',
         value: value,
       ));
     });
@@ -218,7 +228,7 @@ extension RegionModelQueryFilter on QueryBuilder<RegionModel, RegionModel, QFilt
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r"id",
+        property: r'id',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -233,14 +243,15 @@ extension RegionModelQueryFilter on QueryBuilder<RegionModel, RegionModel, QFilt
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r"regionId",
+        property: r'regionId',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> regionIdGreaterThan(
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition>
+      regionIdGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -248,14 +259,15 @@ extension RegionModelQueryFilter on QueryBuilder<RegionModel, RegionModel, QFilt
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r"regionId",
+        property: r'regionId',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> regionIdLessThan(
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition>
+      regionIdLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -263,7 +275,7 @@ extension RegionModelQueryFilter on QueryBuilder<RegionModel, RegionModel, QFilt
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r"regionId",
+        property: r'regionId',
         value: value,
         caseSensitive: caseSensitive,
       ));
@@ -279,7 +291,7 @@ extension RegionModelQueryFilter on QueryBuilder<RegionModel, RegionModel, QFilt
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r"regionId",
+        property: r'regionId',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -289,186 +301,207 @@ extension RegionModelQueryFilter on QueryBuilder<RegionModel, RegionModel, QFilt
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> regionIdStartsWith(
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition>
+      regionIdStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
-        property: r"regionId",
+        property: r'regionId',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> regionIdEndsWith(
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition>
+      regionIdEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
-        property: r"regionId",
+        property: r'regionId',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> regionIdContains(String value, {bool caseSensitive = true}) {
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition>
+      regionIdContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
-        property: r"regionId",
+        property: r'regionId',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> regionIdMatches(String pattern, {bool caseSensitive = true}) {
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> regionIdMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
-        property: r"regionId",
+        property: r'regionId',
         wildcard: pattern,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> regionIdIsEmpty() {
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition>
+      regionIdIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r"regionId",
-        value: "",
+        property: r'regionId',
+        value: '',
       ));
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> regionIdIsNotEmpty() {
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition>
+      regionIdIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r"regionId",
-        value: "",
+        property: r'regionId',
+        value: '',
       ));
     });
   }
 }
 
-extension RegionModelQueryObject on QueryBuilder<RegionModel, RegionModel, QFilterCondition> {}
+extension RegionModelQueryObject
+    on QueryBuilder<RegionModel, RegionModel, QFilterCondition> {}
 
-extension RegionModelQueryLinks on QueryBuilder<RegionModel, RegionModel, QFilterCondition> {
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> tiles(FilterQuery<TileModel> q) {
+extension RegionModelQueryLinks
+    on QueryBuilder<RegionModel, RegionModel, QFilterCondition> {
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> tiles(
+      FilterQuery<TileModel> q) {
     return QueryBuilder.apply(this, (query) {
-      return query.link(q, r"tiles");
+      return query.link(q, r'tiles');
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> tilesLengthEqualTo(int length) {
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition>
+      tilesLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r"tiles", length, true, length, true);
+      return query.linkLength(r'tiles', length, true, length, true);
     });
   }
 
   QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> tilesIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r"tiles", 0, true, 0, true);
+      return query.linkLength(r'tiles', 0, true, 0, true);
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> tilesIsNotEmpty() {
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition>
+      tilesIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r"tiles", 0, false, 999999, true);
+      return query.linkLength(r'tiles', 0, false, 999999, true);
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> tilesLengthLessThan(
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition>
+      tilesLengthLessThan(
     int length, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r"tiles", 0, true, length, include);
+      return query.linkLength(r'tiles', 0, true, length, include);
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> tilesLengthGreaterThan(
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition>
+      tilesLengthGreaterThan(
     int length, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r"tiles", length, include, 999999, true);
+      return query.linkLength(r'tiles', length, include, 999999, true);
     });
   }
 
-  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition> tilesLengthBetween(
+  QueryBuilder<RegionModel, RegionModel, QAfterFilterCondition>
+      tilesLengthBetween(
     int lower,
     int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r"tiles", lower, includeLower, upper, includeUpper);
+      return query.linkLength(
+          r'tiles', lower, includeLower, upper, includeUpper);
     });
   }
 }
 
-extension RegionModelQuerySortBy on QueryBuilder<RegionModel, RegionModel, QSortBy> {
+extension RegionModelQuerySortBy
+    on QueryBuilder<RegionModel, RegionModel, QSortBy> {
   QueryBuilder<RegionModel, RegionModel, QAfterSortBy> sortByRegionId() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r"regionId", Sort.asc);
+      return query.addSortBy(r'regionId', Sort.asc);
     });
   }
 
   QueryBuilder<RegionModel, RegionModel, QAfterSortBy> sortByRegionIdDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r"regionId", Sort.desc);
+      return query.addSortBy(r'regionId', Sort.desc);
     });
   }
 }
 
-extension RegionModelQuerySortThenBy on QueryBuilder<RegionModel, RegionModel, QSortThenBy> {
+extension RegionModelQuerySortThenBy
+    on QueryBuilder<RegionModel, RegionModel, QSortThenBy> {
   QueryBuilder<RegionModel, RegionModel, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r"id", Sort.asc);
+      return query.addSortBy(r'id', Sort.asc);
     });
   }
 
   QueryBuilder<RegionModel, RegionModel, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r"id", Sort.desc);
+      return query.addSortBy(r'id', Sort.desc);
     });
   }
 
   QueryBuilder<RegionModel, RegionModel, QAfterSortBy> thenByRegionId() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r"regionId", Sort.asc);
+      return query.addSortBy(r'regionId', Sort.asc);
     });
   }
 
   QueryBuilder<RegionModel, RegionModel, QAfterSortBy> thenByRegionIdDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r"regionId", Sort.desc);
+      return query.addSortBy(r'regionId', Sort.desc);
     });
   }
 }
 
-extension RegionModelQueryWhereDistinct on QueryBuilder<RegionModel, RegionModel, QDistinct> {
-  QueryBuilder<RegionModel, RegionModel, QDistinct> distinctByRegionId({bool caseSensitive = true}) {
+extension RegionModelQueryWhereDistinct
+    on QueryBuilder<RegionModel, RegionModel, QDistinct> {
+  QueryBuilder<RegionModel, RegionModel, QDistinct> distinctByRegionId(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r"regionId", caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'regionId', caseSensitive: caseSensitive);
     });
   }
 }
 
-extension RegionModelQueryProperty on QueryBuilder<RegionModel, RegionModel, QQueryProperty> {
+extension RegionModelQueryProperty
+    on QueryBuilder<RegionModel, RegionModel, QQueryProperty> {
   QueryBuilder<RegionModel, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r"id");
+      return query.addPropertyName(r'id');
     });
   }
 
   QueryBuilder<RegionModel, String, QQueryOperations> regionIdProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r"regionId");
+      return query.addPropertyName(r'regionId');
     });
   }
 }

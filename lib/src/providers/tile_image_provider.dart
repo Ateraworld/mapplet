@@ -27,10 +27,12 @@ class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
   final TileLayer options;
   final Coords<num> coords;
   final MappletTileProvider tileProvider;
-  ImmutableBuffer? _errorImageBuffer;
 
   @override
-  ImageStreamCompleter loadBuffer(MappletTileImageProvider key, DecoderBufferCallback decode) {
+  ImageStreamCompleter loadBuffer(
+    MappletTileImageProvider key,
+    DecoderBufferCallback decode,
+  ) {
     // ignore: close_sinks
     final StreamController<ImageChunkEvent> chunkEvents = StreamController<ImageChunkEvent>();
     var codec = _loadCodec(key: key, decode: decode, chunkEvents: chunkEvents);
@@ -52,18 +54,19 @@ class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
     required StreamController<ImageChunkEvent> chunkEvents,
   }) async {
     Uint8List? bytes;
-    final networkUrl = tileProvider.getTileUrl(coords, options);
+    final tileUrl = tileProvider.getTileUrl(coords, options);
     Codec codec;
+    TileModel? tile;
     try {
-      var res = await depot.getTile(networkUrl);
+      tile = await depot.getTile(tileUrl);
       var evictPeriod = depot.config.tilesStoreEvictPeriod ?? const Duration(days: 7);
-      var shouldUpdate = res != null && (DateTime.now().toUtc().millisecondsSinceEpoch - res.timestamp >= evictPeriod.inMilliseconds);
-      if (res == null || shouldUpdate) {
+      var shouldUpdate = tile != null && (DateTime.now().toUtc().millisecondsSinceEpoch - tile.timestamp >= evictPeriod.inMilliseconds);
+      if (tile == null || shouldUpdate) {
         // if (res != null) {
         //   log("url ${res.url}, ts ${res.timestamp}, ts diff ${DateTime.now().toUtc().millisecondsSinceEpoch - res.timestamp}, evict ms ${evictPeriod.inMilliseconds}");
         // }
         final HttpClientResponse response;
-        final request = await client.getUrl(Uri.parse(networkUrl));
+        final request = await client.getUrl(Uri.parse(tileUrl));
         tileProvider.headers.forEach(
           (k, v) => request.headers.add(k, v, preserveHeaderCase: true),
         );
@@ -81,16 +84,31 @@ class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
           },
         );
         if (shouldUpdate) {
-          depot.db.writeSingleTile(TileModel.factory(networkUrl, bytes));
+          depot.db.writeSingleTile(TileModel.factory(tileUrl, bytes)).then((value) => log("evicted"));
         }
-        codec = await decode(await ImmutableBuffer.fromUint8List(bytes), allowUpscaling: false);
+        codec = await decode(
+          await ImmutableBuffer.fromUint8List(bytes),
+          allowUpscaling: false,
+        );
       } else {
-        codec = await decode(await ImmutableBuffer.fromUint8List(Uint8List.fromList(res.bytes)), allowUpscaling: false);
+        codec = await decode(
+          await ImmutableBuffer.fromUint8List(Uint8List.fromList(tile.bytes)),
+          allowUpscaling: false,
+        );
       }
     } catch (err) {
       log(err.toString());
-      _errorImageBuffer ??= await ImmutableBuffer.fromUint8List((await rootBundle.load("assets/images/surface.png")).buffer.asUint8List());
-      codec = await decode(_errorImageBuffer!, allowUpscaling: false);
+      if (tile != null) {
+        codec = await decode(
+          await ImmutableBuffer.fromUint8List(Uint8List.fromList(tile.bytes)),
+          allowUpscaling: false,
+        );
+      } else {
+        // Empty error image
+        codec = await decode(
+          await ImmutableBuffer.fromUint8List(Uint8List.fromList([])),
+        );
+      }
     } finally {
       scheduleMicrotask(() => PaintingBinding.instance.imageCache.evict(key));
       chunkEvents.close();
@@ -99,5 +117,8 @@ class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
   }
 
   @override
-  Future<MappletTileImageProvider> obtainKey(ImageConfiguration configuration) => Future.value(this);
+  Future<MappletTileImageProvider> obtainKey(
+    ImageConfiguration configuration,
+  ) =>
+      Future.value(this);
 }

@@ -1,24 +1,95 @@
+import "package:flutter/foundation.dart";
 import "package:isar/isar.dart";
 import "package:mapplet/src/common/extensions.dart";
 import "package:mapplet/src/database/depot_stats.dart";
 import "package:mapplet/src/database/models/region_model.dart";
 import "package:mapplet/src/database/models/tile_model.dart";
 import "package:mapplet/src/depot/depot_config.dart";
-import "package:quiver/iterables.dart";
+import "package:meta/meta.dart";
 
 /// The depot database of **Mapplet**.
 ///
 /// Create an **Isar** istance with [DepotConfiguration.id] as name and [DepotConfiguration.maxSizeMib] as max size.
 ///
 /// Create also a temp instances for the batch writing.
+@internal
 class DepotDatabase {
   DepotDatabase._(this.config);
 
   late Isar db;
-  late Isar tempDb;
   final DepotConfiguration config;
 
-  final List<Future<void>> _isolates = List.empty(growable: true);
+  final List<Future<void>> _batchWriters = List.empty(growable: true);
+  final List<int> _batchesIds = List<int>.empty(growable: true);
+
+  static Future<bool> _commitRegionIsolate(List<Object> args) async {
+    var config = args[0] as DepotConfiguration;
+    var regionId = args[1] as String;
+    var ids = args[2] as List<int>;
+
+    var db = Isar.openSync(
+      [TileModelSchema, RegionModelSchema],
+      name: config.id,
+      inspector: false,
+      maxSizeMiB: config.maxSizeMiB,
+    );
+
+    List<TileModel> tileList = List.empty(growable: true);
+    var res = db.tileModels.getAllSync(ids);
+    for (int i = 0; i < res.length; i++) {
+      var model = res[i];
+      if (model == null) continue;
+      tileList.add(
+        TileModel(
+          url: model.url,
+          bytes: model.bytes,
+          links: model.links + 1,
+        ),
+      );
+    }
+    var region = RegionModel(regionId: regionId)..tiles.addAll(tileList);
+    db.writeTxnSync(() {
+      db.tileModels.putAllSync(tileList);
+      db.regionModels.putSync(region);
+    });
+    await db.writeTxn(() async => await region.tiles.save());
+
+    return true;
+  }
+
+  static Future<bool> _deleteRegionIsolate(List<Object> args) async {
+    var config = args[0] as DepotConfiguration;
+    var regionId = args[1] as String;
+    var db = Isar.openSync(
+      [TileModelSchema, RegionModelSchema],
+      name: config.id,
+      inspector: false,
+      maxSizeMiB: config.maxSizeMiB,
+    );
+    var res = db.regionModels.getSync(regionId.toIsarHash());
+
+    List<int> deleteList = List.empty(growable: true);
+    List<TileModel> pushList = List.empty(growable: true);
+    if (res == null) return false;
+    for (final tile in res.tiles) {
+      if (tile.links > 1) {
+        pushList.add(
+          TileModel(
+            url: tile.url,
+            bytes: tile.bytes,
+            links: tile.links - 1,
+          ),
+        );
+      } else {
+        deleteList.add(tile.id);
+      }
+    }
+    return db.writeTxnSync(() {
+      db.tileModels.deleteAllSync(deleteList);
+      db.tileModels.putAllSync(pushList);
+      return db.regionModels.deleteSync(regionId.toIsarHash());
+    });
+  }
 
   /// Initialize **Isar**'s instance and temp instance with the given [DepotConfiguration]
   ///
@@ -33,23 +104,26 @@ class DepotDatabase {
       maxSizeMiB: config.maxSizeMiB,
     );
 
-    data.tempDb = await Isar.open(
-      [TileModelSchema],
-      name: "${config.id}_temp",
-      inspector: config.debugIsarConsole,
-      maxSizeMiB: config.maxSizeMiB,
-    );
+    Future<void> cleanupUnlinked() async {
+      var unlinked = await data.db.tileModels.where().filter().linksEqualTo(0).findAll();
+      await data.db.writeTxn(
+        () async => await data.db.tileModels.deleteAll(unlinked.map((e) => e.id).toList()),
+      );
+    }
 
-    await data.tempDb.writeTxn(() => data.tempDb.clear());
+    if (config.cleanUnlinkedTilesOnInit) {
+      var cleanup = cleanupUnlinked();
+      if (config.awaitUnlinkedTileClenOnInit) {
+        await cleanup;
+      }
+    }
     return data;
   }
 
   /// Close **Isar**'s instances
   ///
   /// If [deleteFromDisk] is `true`, delete all data
-  Future<bool> close({bool deleteFromDisk = false}) async {
-    return await db.close(deleteFromDisk: deleteFromDisk) || await tempDb.close(deleteFromDisk: deleteFromDisk);
-  }
+  Future<bool> close({bool deleteFromDisk = false}) async => await db.close(deleteFromDisk: deleteFromDisk);
 
   /// Add a single tile to the database
   ///
@@ -62,30 +136,9 @@ class DepotDatabase {
           url: tile.url,
           bytes: tile.bytes,
           links: stored != null ? stored.links : 0,
-          timestamp: DateTime.now().toUtc().millisecondsSinceEpoch,
         ),
       ),
     );
-  }
-
-  /// Write the given [regionId] and [tileModels] to the db
-  ///
-  /// Returns the `id` of the written region or `null`
-  ///
-  /// If a region already exist, this function increment the [links] of the tile
-  Future<int?> writeRegion(String regionId, List<TileModel> tileModels) async {
-    if (tileModels.isEmpty) return null;
-    var tileList = await _generateTiles(tileModels);
-    var region = RegionModel(regionId: regionId)..tiles.addAll(tileList);
-
-    var part = partition(tileList, _computeBatchSize(tileList.length));
-
-    return await db.writeTxn(() async {
-      int res = await db.regionModels.put(region);
-      await Future.wait(List.generate(part.length, (index) => db.tileModels.putAll(part.elementAt(index))));
-      await region.tiles.save();
-      return res;
-    });
   }
 
   /// Delete the given [regionId] from the db
@@ -93,58 +146,74 @@ class DepotDatabase {
   /// Returns `true` if the region has been deleted, `false` otherwise
   ///
   /// Linked tiles will be deleted only if they have one [links], otherwise the link count is decremented
-  Future<bool> deleteRegion(String regionId) async {
-    var res = await db.regionModels.get(regionId.toIsarHash());
+  Future<bool> deleteRegion(String regionId) {
+    return compute(_deleteRegionIsolate, [config, regionId]);
+    // var res = await db.regionModels.get(regionId.toIsarHash());
 
-    List<int> deleteList = List.empty(growable: true);
-    List<TileModel> pushList = List.empty(growable: true);
-    if (res == null) return false;
-    for (final tile in res.tiles) {
-      if (tile.links > 1) {
-        pushList.add(
-          TileModel(url: tile.url, bytes: tile.bytes, links: tile.links - 1, timestamp: DateTime.now().toUtc().millisecondsSinceEpoch),
-        );
-      } else {
-        deleteList.add(tile.id);
-      }
-    }
-    var deletePart = partition(deleteList, _computeBatchSize(deleteList.length));
-    var insertPart = partition(pushList, _computeBatchSize(pushList.length));
-    return await db.writeTxn(() async {
-      await Future.wait(List.generate(insertPart.length, (index) => db.tileModels.putAll(insertPart.elementAt(index))));
-      await Future.wait(List.generate(deletePart.length, (index) => db.tileModels.deleteAll(deletePart.elementAt(index))));
-      return await db.regionModels.delete(regionId.toIsarHash());
-    });
+    // List<int> deleteList = List.empty(growable: true);
+    // List<TileModel> pushList = List.empty(growable: true);
+    // if (res == null) return false;
+    // for (final tile in res.tiles) {
+    //   if (tile.links > 1) {
+    //     pushList.add(
+    //       TileModel(
+    //         url: tile.url,
+    //         bytes: tile.bytes,
+    //         links: tile.links - 1,
+    //       ),
+    //     );
+    //   } else {
+    //     deleteList.add(tile.id);
+    //   }
+    // }
+    // return await db.writeTxn(() async {
+    //   await db.tileModels.deleteAll(deleteList);
+    //   await db.tileModels.putAll(pushList);
+    //   return await db.regionModels.delete(regionId.toIsarHash());
+    // });
   }
 
-  /// Clean the temp db to reset the transaction
-  Future<void> cleanTx() {
-    _isolates.clear();
-    return tempDb.writeTxn(() => tempDb.clear());
+  /// Clean the temporary internal files generated by call of [batchWriteTx], preparing for future transactions
+  Future<void> cleanTemp({bool purgeUnlinkedTiles = true}) async {
+    _batchWriters.clear();
+    _batchesIds.clear();
+    if (purgeUnlinkedTiles) {
+      var unlinked = await db.tileModels.where().filter().linksEqualTo(0).findAll();
+      await db.writeTxn(
+        () async => await db.tileModels.deleteAll(unlinked.map((e) => e.id).toList()),
+      );
+    }
   }
 
   /// Runs a [Future] function to write a batch of the transaction
   Future<void> batchWriteTx(List<TileModel> tileModels) async {
-    Future<void> isolatedTx() async {
-      var tiles = await _generateTiles(tileModels);
-      await tempDb.writeTxn(() async => tempDb.tileModels.putAll(tiles));
+    Future<void> batchTx() async {
+      List<TileModel> list = List.empty(growable: true);
+      var res = await db.tileModels.getAll(tileModels.map((e) => e.id).toList());
+      for (int i = 0; i < tileModels.length; i++) {
+        var model = tileModels[i];
+        list.add(
+          TileModel(
+            url: model.url,
+            bytes: model.bytes,
+            links: res[i] != null ? res[i]!.links : 0,
+          ),
+        );
+        _batchesIds.add(model.id);
+      }
+      await db.writeTxn(() async => db.tileModels.putAll(list));
     }
 
-    _isolates.add(isolatedTx());
+    _batchWriters.add(batchTx());
   }
 
-  /// Commit all data in the db to complete the transaction
+  /// Commit all data passed with subsequent calls to [batchWriteTx] in the db and attempt to complete the transaction
   ///
-  /// First wait for all [batchWriteTx] to be completed
+  /// First wait for all [batchWriteTx] to be completed, then executes the commit transaction on a separate `Isolate`
   Future<bool> commitRegionTx(String regionId) async {
-    await Future.wait(_isolates);
-    _isolates.clear();
-    var tiles = await tempDb.tileModels.where().findAll();
-    if (await writeRegion(regionId, tiles) != null) {
-      tempDb.writeTxn(() => tempDb.clear());
-      return true;
-    }
-    return false;
+    await Future.wait(_batchWriters);
+    _batchWriters.clear();
+    return await compute(_commitRegionIsolate, [config, regionId, _batchesIds]);
   }
 
   /// Returns `Iterable<TileModel>` linked with the given [regionId] contained in the db
@@ -203,28 +272,5 @@ class DepotDatabase {
       tilesCount: res[3],
       regionCount: res[4],
     );
-  }
-
-  int _computeBatchSize(int tiles) => max([
-        4,
-        tiles ~/ min([(tiles ~/ 50) + 1, 32])!
-      ])!;
-
-  /// Generate the list of [TileModel] with the current [links] number
-  Future<List<TileModel>> _generateTiles(List<TileModel> tileModels) async {
-    List<TileModel> list = List.empty(growable: true);
-    var res = await db.tileModels.getAll(tileModels.map((e) => e.id).toList());
-    for (int i = 0; i < tileModels.length; i++) {
-      var model = tileModels[i];
-      list.add(
-        TileModel(
-          url: model.url,
-          bytes: model.bytes,
-          links: res[i] != null ? res[i]!.links + 1 : 1,
-          timestamp: DateTime.now().toUtc().millisecondsSinceEpoch,
-        ),
-      );
-    }
-    return list;
   }
 }

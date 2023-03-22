@@ -24,7 +24,12 @@ extension DbHashExtensions on String {
 
 extension LatLngBoundsExtensions on LatLngBounds {
   /// Get the coordinates for the current [LatLngBounds] at the provided zoom levels
-  List<Coords<num>> coords(int minZoom, int maxZoom, {num tileSize = 256, Crs? crs}) {
+  List<Coords<num>> coords(
+    int minZoom,
+    int maxZoom, {
+    num tileSize = 256,
+    Crs? crs,
+  }) {
     crs ??= const Epsg3857();
     CustomPoint<num> tileSizePoint = CustomPoint(tileSize, tileSize);
 

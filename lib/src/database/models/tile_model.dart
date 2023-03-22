@@ -11,15 +11,13 @@ class TileModel {
   TileModel({
     required this.url,
     required this.bytes,
-    required this.timestamp,
     this.links = 1,
-  });
+  }) : timestamp = DateTime.now().toUtc().millisecondsSinceEpoch;
 
-  factory TileModel.factory(String url, List<byte> bytes, {DateTime? timestamp}) {
+  factory TileModel.factory(String url, List<byte> bytes) {
     return TileModel(
       url: url,
       bytes: bytes,
-      timestamp: timestamp != null ? timestamp.millisecondsSinceEpoch : DateTime.now().toUtc().millisecondsSinceEpoch,
     );
   }
 

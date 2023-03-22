@@ -7,18 +7,26 @@
 **Mapplet** has been designed with simplicity in mind.
 The code has been provided with the strict necessary to allow developers to store maps for offline usage using the packet [flutter_map](https://pub.dev/packages/flutter_map).
 
-The **Mapplet** framework is very easy:
+### Definitions
 
-* The fetch from the web operation is executed in parallel on multiple workers
-* Writes operation on the database are batched to increase performance
-* The fetch operation is structured in a _transaction-like_ operation allowing easy `commits` and `aborts`
-* Uses an internal _temp_database_ to prevent corrupted data to be commited into the database
+**`Region`**
+> A region is an area identified by its `LatLngBounds`
+
+**`Depot`**
+> Identifies a storage that can contain an arbitrary number of **Regions**. Tiles inside a depot are dynamically shared among regions in order to prevent redownload and save space. Any number of depots can be created during the setup
+
+### Main features
+
+* Store and delete regions by `id`: each `Depot` can contain many regions
+* Save space: **Mapplet** detects already stored tiles shared among regions inside each `Depot` and prevent redownload automatically
+* Parallel fetch: region tiles are fetched with multiple workers and written in batches on the internal database. This allows for _transaction-like_ operations with clean `abort` and `commit`.
+* Extremely fast learning curve: **Mapplet** exposes only the strictly necessary to the developer. With a single point of configuration, integrating the package in projects is very easy.
 
 ## Getting started
 
 ### Initialize the packet
 
-The packet is initialized by calling a single function and passing the configuration of each single depot
+The packet is initialized by calling a single function and passing the configuration of each single depot. In order to make the package very simple and functional, the `DepotConfiguration` is the single element used for configuring the behaviour of each `Depot` in **Mapplet**.
 
 ```dart
 await Mapplet.initiate([
@@ -69,6 +77,29 @@ await for (final progress in stream) {
     // Or, whenever you want, abort the operation
     await depositOp.abort();
 }
+```
+
+### Delete a region
+
+Yes, simple as this.
+
+```dart
+var depot = await Mapplet.depot("my_depot");
+await depot.dropRegion("region_id");
+```
+
+### Use the `TileProvider`
+
+Again, two lines of code.
+**Mapplet** has a single tile providers associated with each `Depot`.
+
+* Tries to get the tiles from the storage
+* Otherwise, fetches it from the web
+* Automatically updates stored tiles based on the evict period defined in the `DepotConfiguration`
+
+```dart
+var depot = await Mapplet.depot("my_depot");
+var tileProvider = depot.getTileProvider();
 ```
 
 ## Additional information

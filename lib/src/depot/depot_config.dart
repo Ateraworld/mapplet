@@ -4,12 +4,12 @@ class DepotConfiguration {
     required this.urlTemplate,
     required this.minZoom,
     required this.maxZoom,
-    this.ignoredQueryParams,
     this.fetchTileAttempts = 4,
     this.fetchMaxHeapSizeMiB = 256,
     this.fetchMaxWorkers = 24,
     this.maxSizeMiB = 2048,
-    this.maxTempSizeMiB = 128,
+    this.cleanUnlinkedTilesOnInit = true,
+    this.awaitUnlinkedTileClenOnInit = true,
     this.debugIsarConsole = false,
     this.tilesStoreEvictPeriod,
     this.fetchTileTimeout,
@@ -31,11 +31,6 @@ class DepotConfiguration {
   /// Identifies the [Depot] that is associated with this configuration
   final String id;
 
-  /// Specifies a group of regular expressions that defines what query parameters in the [urlTemplate] must not be ignored
-  ///
-  /// Since **Mapplet** uses the url to identify tiles, having same url with different query parameters will result in multiple tiles being stored indipendently
-  Iterable<RegExp>? ignoredQueryParams;
-
   /// Template of the map endpoint
   final String urlTemplate;
 
@@ -47,14 +42,11 @@ class DepotConfiguration {
   /// Maximum size in MiB of the [Depot]
   final int maxSizeMiB;
 
-  /// Maximum size in MiB of the *temp_database* associated with the [Depot]
-  ///
-  /// The *temp_database* is used internally by **Mapplet** to allow batched writes into the database when fetching a region. The *temp_database* is used to ensure clear abort operations and prevent involontary corrupted data.
-  ///
-  /// Intuitively set this parameters to the __size in MiB of the largest region map that you plan on fetching__
-  ///
-  /// _Adjusting this parameters may result in errors and exceptions if the region that is being fetched is greater than the specified size_
-  final int maxTempSizeMiB;
+  /// Clean all tiles not linked to any region on [Mapplet.initialize]
+  final bool cleanUnlinkedTilesOnInit;
+
+  /// If [cleanUnlinkedTilesOnInit] is true and this is`true`, [Mapplet.initialize] awaits the cleanup of unlinked tiles on startup, otherwise it is run in the background
+  final bool awaitUnlinkedTileClenOnInit;
 
   /// Timeout duration for the fetch operation from the web for each single tile
   ///
