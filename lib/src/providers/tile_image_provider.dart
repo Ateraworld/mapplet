@@ -6,12 +6,15 @@ import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_map/flutter_map.dart";
+import "package:mapplet/src/database/models/tile_model.dart";
 import "package:mapplet/src/depot/depot.dart";
 import "package:mapplet/src/providers/map_tile_provider.dart";
+import "package:meta/meta.dart";
 
-/// The tile image provider of [Mapplet].
+/// The tile image provider of **Mapplet**
 ///
 /// Tries to load the tile from the local [Depot], if not present, fetches it from the web
+@internal
 class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
   MappletTileImageProvider({
     required this.depot,
@@ -52,9 +55,10 @@ class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
     Codec codec;
     try {
       var res = await depot.getTile(networkUrl);
-      if (res == null) {
+      var evicPeriod = depot.config.tilesStoreEvictPeriod ?? const Duration(days: 7);
+      var evicted = res != null && DateTime.now().toUtc().millisecondsSinceEpoch - res.timestamp >= evicPeriod.inMilliseconds;
+      if (res == null || evicted) {
         final HttpClientResponse response;
-
         final request = await client.getUrl(Uri.parse(networkUrl));
         tileProvider.headers.forEach(
           (k, v) => request.headers.add(k, v, preserveHeaderCase: true),
@@ -72,6 +76,10 @@ class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
             );
           },
         );
+        if (evicted) {
+          await depot.db.writeSingleTile(TileModel.factory(networkUrl, bytes));
+          debugPrint("evicted, storing");
+        }
         codec = await decode(await ImmutableBuffer.fromUint8List(bytes), allowUpscaling: false);
       } else {
         codec = await decode(await ImmutableBuffer.fromUint8List(Uint8List.fromList(res.bytes)), allowUpscaling: false);

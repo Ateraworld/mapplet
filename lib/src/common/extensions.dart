@@ -23,8 +23,9 @@ extension DbHashExtensions on String {
 }
 
 extension LatLngBoundsExtensions on LatLngBounds {
-  List<Coords<num>> coords(int minZoom, int maxZoom, {num tileSize = 256}) {
-    const Crs crs = Epsg3857();
+  /// Get the coordinates for the current [LatLngBounds] at the provided zoom levels
+  List<Coords<num>> coords(int minZoom, int maxZoom, {num tileSize = 256, Crs? crs}) {
+    crs ??= const Epsg3857();
     CustomPoint<num> tileSizePoint = CustomPoint(tileSize, tileSize);
 
     return List.generate(
@@ -32,7 +33,7 @@ extension LatLngBoundsExtensions on LatLngBounds {
       (z) {
         final zoomLevel = minZoom + z;
 
-        final nwt = crs.latLngToPoint(northWest, zoomLevel.toDouble()).unscaleBy(tileSizePoint).floor();
+        final nwt = crs!.latLngToPoint(northWest, zoomLevel.toDouble()).unscaleBy(tileSizePoint).floor();
         final nw = CustomPoint<int>(nwt.x, nwt.y);
 
         final set = crs.latLngToPoint(southEast, zoomLevel.toDouble()).unscaleBy(tileSizePoint).ceil() - const CustomPoint(1, 1);
@@ -52,6 +53,9 @@ extension LatLngBoundsExtensions on LatLngBounds {
     ).expand((e) => e).expand((e) => e).toList(growable: false);
   }
 
+  /// Create a [LatLngBounds] specifying its center and the distance from center
+  ///
+  /// The result is a square region with half size equal to [deltaKm]
   static LatLngBounds fromDelta(LatLng center, double deltaKm) {
     var nw = _getPointFromDelta(center, -deltaKm, deltaKm);
     var ne = _getPointFromDelta(center, deltaKm, deltaKm);
@@ -76,7 +80,7 @@ extension IntExtensions on int {
 
 extension LatLngExtensions on LatLng {
   /// Returns the distance in meters
-  double distanceFrom(LatLng other) {
+  double metersFrom(LatLng other) {
     const earthRadius = 6378137.0;
     var toRad = pi / 180;
     var dLat = (latitude - other.latitude) * toRad;
@@ -90,6 +94,7 @@ extension LatLngExtensions on LatLng {
 }
 
 extension ListLatLngExtensions on List<LatLng> {
+  /// Returns the center of mass of the list of points
   LatLng center() {
     double lat = 0;
     double lng = 0;
@@ -100,16 +105,17 @@ extension ListLatLngExtensions on List<LatLng> {
     return LatLng(lat / length, lng / length);
   }
 
-  double maxDistanceKm({double minDistance = 0.5}) {
+  /// Returns the maximum distance in kilometers between any two points
+  double maxDistanceKm() {
     double dist = 0;
     for (final first in this) {
       for (final second in this) {
-        var current = first.distanceFrom(second) / 1000;
+        var current = first.metersFrom(second) / 1000;
         if (current > dist) {
           dist = current;
         }
       }
     }
-    return max(dist, minDistance);
+    return dist;
   }
 }

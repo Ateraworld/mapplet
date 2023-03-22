@@ -1,39 +1,83 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# The easiest way to store flutter maps for offline usage
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+🧪 Although mantained and currently being worked on, the package is very young and under development
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+**Mapplet** has been designed with simplicity in mind.
+The code has been provided with the strict necessary to allow developers to store maps for offline usage using the packet [flutter_map](https://pub.dev/packages/flutter_map).
+
+The **Mapplet** framework is very easy:
+
+* The fetch from the web operation is executed in parallel on multiple workers
+* Writes operation on the database are batched to increase performance
+* The fetch operation is structured in a _transaction-like_ operation allowing easy `commits` and `aborts`
+* Uses an internal _temp_database_ to prevent corrupted data to be commited into the database
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+### Initialize the packet
+
+The packet is initialized by calling a single function and passing the configuration of each single depot
+
+```dart
+await Mapplet.initiate([
+        DepotConfiguration(
+            id: String,
+            minZoom: double,
+            maxZoom: double,
+            urlTemplate: String
+        ),
+        ...
+    ]);
+```
+
+Each configuration specified here will result in a single `Depot` being created under the hood.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+### Store a region
+
+To store a region, firstly create the `LatLngBounds` that describes the region to be stored. **Mapplet** exposes some useful methods to handle regions:
 
 ```dart
-const like = 'sample';
+var center = LatLng(46, 12);
+// Create a [LatLngBounds] specifying its center and the distance in kilometers from center.
+// The result is a square region with half side equal to the specified distance
+var bounds = LatLngBoundsExtensions.fromDelta(center, 10);
+```
+
+Then retrieve the instance of the `Depot` and run the fetch operation
+
+```dart
+var depot = await Mapplet.depot("my_depot");
+
+var depositOp = await depot.depositRegion("region_id", bounds);
+// Listen for abort events
+depositOp.onAbort.listen((_) async {
+    // Do something O.o
+});
+// Listen for commit event called when the region is commited to the database
+depositOp.onCommit.listen((commitFuture) async {
+    // Do something
+});
+// Start the fetching operation
+var stream = depositOp.fetch();
+// Wait for progress reports
+await for (final progress in stream) {
+    // Handle progress
+    // Or, whenever you want, abort the operation
+    await depositOp.abort();
+}
 ```
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+There are some useful methods in the `extensions` module of **Mapplet**. They are automatically imported with the root import.
+
+Extensions subjects:
+
+* `LatLngBounds`
+* `int`
+* `LatLng`
+* `List<LatLng>`

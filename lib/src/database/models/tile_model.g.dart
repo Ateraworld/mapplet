@@ -27,8 +27,13 @@ const TileModelSchema = CollectionSchema(
       name: r"links",
       type: IsarType.long,
     ),
-    r"url": PropertySchema(
+    r"timestamp": PropertySchema(
       id: 2,
+      name: r"timestamp",
+      type: IsarType.long,
+    ),
+    r"url": PropertySchema(
+      id: 3,
       name: r"url",
       type: IsarType.string,
     )
@@ -66,7 +71,8 @@ void _tileModelSerialize(
 ) {
   writer.writeByteList(offsets[0], object.bytes);
   writer.writeLong(offsets[1], object.links);
-  writer.writeString(offsets[2], object.url);
+  writer.writeLong(offsets[2], object.timestamp);
+  writer.writeString(offsets[3], object.url);
 }
 
 TileModel _tileModelDeserialize(
@@ -78,7 +84,8 @@ TileModel _tileModelDeserialize(
   final object = TileModel(
     bytes: reader.readByteList(offsets[0]) ?? [],
     links: reader.readLongOrNull(offsets[1]) ?? 1,
-    url: reader.readString(offsets[2]),
+    timestamp: reader.readLong(offsets[2]),
+    url: reader.readString(offsets[3]),
   );
   return object;
 }
@@ -95,6 +102,8 @@ P _tileModelDeserializeProp<P>(
     case 1:
       return (reader.readLongOrNull(offset) ?? 1) as P;
     case 2:
+      return (reader.readLong(offset)) as P;
+    case 3:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError("Unknown property with id $propertyId");
@@ -424,6 +433,58 @@ extension TileModelQueryFilter on QueryBuilder<TileModel, TileModel, QFilterCond
     });
   }
 
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> timestampEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r"timestamp",
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> timestampGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r"timestamp",
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> timestampLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r"timestamp",
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> timestampBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r"timestamp",
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<TileModel, TileModel, QAfterFilterCondition> urlEqualTo(
     String value, {
     bool caseSensitive = true,
@@ -568,6 +629,18 @@ extension TileModelQuerySortBy on QueryBuilder<TileModel, TileModel, QSortBy> {
     });
   }
 
+  QueryBuilder<TileModel, TileModel, QAfterSortBy> sortByTimestamp() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r"timestamp", Sort.asc);
+    });
+  }
+
+  QueryBuilder<TileModel, TileModel, QAfterSortBy> sortByTimestampDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r"timestamp", Sort.desc);
+    });
+  }
+
   QueryBuilder<TileModel, TileModel, QAfterSortBy> sortByUrl() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r"url", Sort.asc);
@@ -606,6 +679,18 @@ extension TileModelQuerySortThenBy on QueryBuilder<TileModel, TileModel, QSortTh
     });
   }
 
+  QueryBuilder<TileModel, TileModel, QAfterSortBy> thenByTimestamp() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r"timestamp", Sort.asc);
+    });
+  }
+
+  QueryBuilder<TileModel, TileModel, QAfterSortBy> thenByTimestampDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r"timestamp", Sort.desc);
+    });
+  }
+
   QueryBuilder<TileModel, TileModel, QAfterSortBy> thenByUrl() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r"url", Sort.asc);
@@ -632,6 +717,12 @@ extension TileModelQueryWhereDistinct on QueryBuilder<TileModel, TileModel, QDis
     });
   }
 
+  QueryBuilder<TileModel, TileModel, QDistinct> distinctByTimestamp() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r"timestamp");
+    });
+  }
+
   QueryBuilder<TileModel, TileModel, QDistinct> distinctByUrl({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r"url", caseSensitive: caseSensitive);
@@ -655,6 +746,12 @@ extension TileModelQueryProperty on QueryBuilder<TileModel, TileModel, QQueryPro
   QueryBuilder<TileModel, int, QQueryOperations> linksProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r"links");
+    });
+  }
+
+  QueryBuilder<TileModel, int, QQueryOperations> timestampProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r"timestamp");
     });
   }
 

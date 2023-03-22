@@ -35,7 +35,7 @@ class TileFetchReport {
 ///
 /// Copies the [DepotConfiguration] of the corresponding [Depot].
 ///
-/// Fetches the tiles in parallel and writes on the database in batches. The size of the batches is defined by the [DepotConfiguration.fetchMaxHeapSizeMib] and the level of parallelism by [DepotConfiguration.fetchMaxWorkers]
+/// Fetches the tiles in parallel and writes on the database in batches. The size of the batches is defined by the [DepotConfiguration.fetchMaxHeapSizeMiB] and the level of parallelism by [DepotConfiguration.fetchMaxWorkers]
 class FetchOperation {
   FetchOperation({
     required DepotDatabase db,
@@ -56,10 +56,15 @@ class FetchOperation {
   // ignore: close_sinks
   final StreamController _abortStreamController = StreamController.broadcast();
   // ignore: close_sinks
-  final StreamController<Future<void>> _commitStreamController = StreamController.broadcast();
+  final StreamController<Future<bool>> _commitStreamController = StreamController.broadcast();
 
+  /// Get notifications on when the fetch operations is aborted
   Stream<void> get onAbort => _abortStreamController.stream;
-  Stream<void> get onCommit => _commitStreamController.stream;
+
+  /// Get notifications on when the fetch operations is committed to the database
+  ///
+  /// The stream passes the future that completes with the result of the commit in the database
+  Stream<Future<bool>> get onCommit => _commitStreamController.stream;
 
   Future<void> _fetcher({
     required Iterable<String> urls,
@@ -76,7 +81,7 @@ class FetchOperation {
       TileModel? res = storedTiles.elementAt(i);
       while (res == null && retry < config.fetchTileAttempts) {
         try {
-          final http.Response response = await client.get(Uri.parse(url)).timeout(config.fetchTileTimeout);
+          final http.Response response = await client.get(Uri.parse(url)).timeout(config.fetchTileTimeout ?? const Duration(seconds: 5));
           res = TileModel.factory(url, response.bodyBytes);
         } catch (error) {
           if (error is TimeoutException) {
@@ -111,6 +116,7 @@ class FetchOperation {
 
   int _computeBatchSize(int tiles) => max([4, tiles ~/ _computeThreadCount(tiles)])!;
 
+  /// Abort the currently active operation, if any, and clears the internal _temp_database_
   Future<void> abort() async {
     _operationGate?.close();
     try {
@@ -121,15 +127,16 @@ class FetchOperation {
     _abortStreamController.sink.add(null);
   }
 
+  /// Start the fetch operation
   Stream<FetchProgress> fetch() async* {
     if (_fetching) return;
     await _db.cleanTx();
 
     var batchSize = _computeBatchSize(urls.length);
     var threadCount = _computeThreadCount(urls.length);
-    var threadMaxHeapSizeMib = config.fetchMaxHeapSizeMib / threadCount;
+    var threadMaxHeapSizeMib = config.fetchMaxHeapSizeMiB / threadCount;
     debugPrint(
-      "${urls.length} tiles, $threadCount threads with batches of $batchSize, max heap size ${config.fetchMaxHeapSizeMib} MiB, $threadMaxHeapSizeMib MiB per thread",
+      "${urls.length} tiles, $threadCount threads with batches of $batchSize, max heap size ${config.fetchMaxHeapSizeMiB} MiB, $threadMaxHeapSizeMib MiB per thread",
     );
 
     _fetching = true;
