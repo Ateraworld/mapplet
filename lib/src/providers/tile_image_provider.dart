@@ -56,9 +56,12 @@ class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
     Codec codec;
     try {
       var res = await depot.getTile(networkUrl);
-      var evicPeriod = depot.config.tilesStoreEvictPeriod ?? const Duration(days: 7);
-      var evicted = res != null && DateTime.now().toUtc().millisecondsSinceEpoch - res.timestamp >= evicPeriod.inMilliseconds;
-      if (res == null || evicted) {
+      var evictPeriod = depot.config.tilesStoreEvictPeriod ?? const Duration(days: 7);
+      var shouldUpdate = res != null && (DateTime.now().toUtc().millisecondsSinceEpoch - res.timestamp >= evictPeriod.inMilliseconds);
+      if (res == null || shouldUpdate) {
+        // if (res != null) {
+        //   log("url ${res.url}, ts ${res.timestamp}, ts diff ${DateTime.now().toUtc().millisecondsSinceEpoch - res.timestamp}, evict ms ${evictPeriod.inMilliseconds}");
+        // }
         final HttpClientResponse response;
         final request = await client.getUrl(Uri.parse(networkUrl));
         tileProvider.headers.forEach(
@@ -77,8 +80,8 @@ class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
             );
           },
         );
-        if (evicted) {
-          depot.db.writeSingleTile(TileModel.factory(networkUrl, bytes)).then((value) => log("evicted, storing"));
+        if (shouldUpdate) {
+          depot.db.writeSingleTile(TileModel.factory(networkUrl, bytes));
         }
         codec = await decode(await ImmutableBuffer.fromUint8List(bytes), allowUpscaling: false);
       } else {

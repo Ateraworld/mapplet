@@ -53,11 +53,20 @@ class DepotDatabase {
 
   /// Add a single tile to the database
   ///
-  /// Does not link any region to the current tile, but allows future fetch operations to detect that the tile is already present
-  Future<void> writeSingleTile(TileModel tile) => db.writeTxn(
-        () => db.tileModels
-            .put(TileModel(url: tile.url, bytes: tile.bytes, links: 0, timestamp: DateTime.now().toUtc().millisecondsSinceEpoch)),
-      );
+  /// Does not link any region to the current tile if it is new, but allows future fetch operations to detect that the tile is already present
+  Future<void> writeSingleTile(TileModel tile) async {
+    var stored = await db.tileModels.get(tile.id);
+    await db.writeTxn(
+      () => db.tileModels.put(
+        TileModel(
+          url: tile.url,
+          bytes: tile.bytes,
+          links: stored != null ? stored.links : 0,
+          timestamp: DateTime.now().toUtc().millisecondsSinceEpoch,
+        ),
+      ),
+    );
+  }
 
   /// Write the given [regionId] and [tileModels] to the db
   ///
@@ -83,7 +92,7 @@ class DepotDatabase {
   ///
   /// Returns `true` if the region has been deleted, `false` otherwise
   ///
-  /// Linked tiles will be deleted only if they have one [links], otherwise the link count will be decremented
+  /// Linked tiles will be deleted only if they have one [links], otherwise the link count is decremented
   Future<bool> deleteRegion(String regionId) async {
     var res = await db.regionModels.get(regionId.toIsarHash());
 
