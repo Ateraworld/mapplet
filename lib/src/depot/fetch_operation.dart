@@ -57,9 +57,11 @@ class FetchOperation {
   StreamController? _operationGate;
   AbortReason? _abortReason;
   // ignore: close_sinks
-  final StreamController<AbortReason> _abortStreamController = StreamController.broadcast();
+  final StreamController<AbortReason> _abortStreamController =
+      StreamController.broadcast();
   // ignore: close_sinks
-  final StreamController<Future<bool>> _commitStreamController = StreamController.broadcast();
+  final StreamController<Future<bool>> _commitStreamController =
+      StreamController.broadcast();
 
   /// Get notifications on when the fetch operations is aborted
   Stream<void> get onAbort => _abortStreamController.stream;
@@ -84,7 +86,9 @@ class FetchOperation {
       TileModel? res = storedTiles.elementAt(i);
       while (res == null && retry < config.fetchTileAttempts) {
         try {
-          final http.Response response = await client.get(Uri.parse(url)).timeout(config.fetchTileTimeout ?? const Duration(seconds: 5));
+          final http.Response response = await client
+              .get(Uri.parse(url))
+              .timeout(config.fetchTileTimeout ?? const Duration(seconds: 5));
           res = TileModel.factory(url, response.bodyBytes);
         } catch (error) {
           if (error is TimeoutException) {
@@ -106,16 +110,16 @@ class FetchOperation {
       size += res.bytes.length;
       retry = 0;
       if (size.byteToMib() >= maxHeapSizeMib) {
-        _db.batchWriteTx(fetched.toList()).then((value) => log("batch written on db"));
-
+        _db.enqueueBatchWriteTx(fetched.toList());
         fetched.clear();
         size = 0;
       }
     }
-    _db.batchWriteTx(fetched.toList());
+    _db.enqueueBatchWriteTx(fetched.toList());
   }
 
-  int _computeThreadCount(int tiles) => min([(1 / pow(tiles + 1, -0.375)).floor(), config.fetchMaxWorkers])!;
+  int _computeThreadCount(int tiles) =>
+      min([(1 / pow(tiles + 1, -0.375)).floor(), config.fetchMaxWorkers])!;
 
   /// Abort the currently active operation, if any
   ///
@@ -153,7 +157,8 @@ class FetchOperation {
 
     client = http.Client();
     bool aborted = false;
-    StreamController<TileFetchReport> tileFetchController = StreamController.broadcast();
+    StreamController<TileFetchReport> tileFetchController =
+        StreamController.broadcast();
 
     for (final partition in partition(urls, batchSize)) {
       _workersQueue!

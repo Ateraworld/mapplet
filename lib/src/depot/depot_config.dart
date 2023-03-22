@@ -4,6 +4,7 @@ class DepotConfiguration {
     required this.urlTemplate,
     required this.minZoom,
     required this.maxZoom,
+    this.parallelBatchWriters = 8,
     this.fetchTileAttempts = 4,
     this.fetchMaxHeapSizeMiB = 256,
     this.fetchMaxWorkers = 24,
@@ -14,6 +15,11 @@ class DepotConfiguration {
     this.tilesStoreEvictPeriod,
     this.fetchTileTimeout,
   });
+
+  /// Maximum number of concurrent writers on the database during the fetch operation
+  ///
+  /// Writers write the fetched batches on the db while [fetchMaxWorkers] fetch the tiles form the web
+  final int parallelBatchWriters;
 
   /// After the following period has passed, update the tiles while fetching the tiles
   final Duration? tilesStoreEvictPeriod;
@@ -57,6 +63,8 @@ class DepotConfiguration {
   final int fetchTileAttempts;
 
   /// Maximum number of parallel workers to use when fetching a region
+  ///
+  /// Workers are dedicated to fetching the tiles from the web, while [parallelBatchWriters] write the fetched batches on the db
   final int fetchMaxWorkers;
 
   /// Maximum size specified in MiB to occupy in the heap during the fetch operation

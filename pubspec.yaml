@@ -1,6 +1,6 @@
 name: mapplet
-description: The easiest way to store flutter maps for offline usage
-version: 1.0.3
+description: Handle and use maps in flutter, even in offline enviroments with Mapplet, the easiest way to store flutter maps
+version: 1.0.4
 repository: https://github.com/Ateraworld/mapplet
 issue_tracker: https://github.com/Ateraworld/mapplet/issues
 

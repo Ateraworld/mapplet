@@ -34,7 +34,8 @@ class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
     DecoderBufferCallback decode,
   ) {
     // ignore: close_sinks
-    final StreamController<ImageChunkEvent> chunkEvents = StreamController<ImageChunkEvent>();
+    final StreamController<ImageChunkEvent> chunkEvents =
+        StreamController<ImageChunkEvent>();
     var codec = _loadCodec(key: key, decode: decode, chunkEvents: chunkEvents);
     var stream = MultiFrameImageStreamCompleter(
       codec: codec,
@@ -59,8 +60,11 @@ class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
     TileModel? tile;
     try {
       tile = await depot.getTile(tileUrl);
-      var evictPeriod = depot.config.tilesStoreEvictPeriod ?? const Duration(days: 7);
-      var shouldUpdate = tile != null && (DateTime.now().toUtc().millisecondsSinceEpoch - tile.timestamp >= evictPeriod.inMilliseconds);
+      var evictPeriod =
+          depot.config.tilesStoreEvictPeriod ?? const Duration(days: 7);
+      var shouldUpdate = tile != null &&
+          (DateTime.now().toUtc().millisecondsSinceEpoch - tile.timestamp >=
+              evictPeriod.inMilliseconds);
       if (tile == null || shouldUpdate) {
         // if (res != null) {
         //   log("url ${res.url}, ts ${res.timestamp}, ts diff ${DateTime.now().toUtc().millisecondsSinceEpoch - res.timestamp}, evict ms ${evictPeriod.inMilliseconds}");
@@ -84,7 +88,9 @@ class MappletTileImageProvider extends ImageProvider<MappletTileImageProvider> {
           },
         );
         if (shouldUpdate) {
-          depot.db.writeSingleTile(TileModel.factory(tileUrl, bytes)).then((value) => log("evicted"));
+          depot.db
+              .writeSingleTile(TileModel.factory(tileUrl, bytes))
+              .then((value) => log("evicted"));
         }
         codec = await decode(
           await ImmutableBuffer.fromUint8List(bytes),
