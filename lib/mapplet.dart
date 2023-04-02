@@ -22,7 +22,7 @@ class Mapplet {
   static final List<Depot> _depots = List.empty(growable: true);
 
   /// Initiate the **Mapplet** plugin defining all the [DepotConfiguration]
-  static Future<void> initiate(Iterable<DepotConfiguration> depots) async {
+  static Future<void> initialize(Iterable<DepotConfiguration> depots) async {
     _depots.clear();
     var initTasks = List<Future<Depot>>.empty(growable: true);
     for (final config in depots) {
@@ -32,7 +32,11 @@ class Mapplet {
     _depots.addAll(res);
   }
 
+  static Future<void> dispose({bool deleteFromDisk = false}) async {
+    var tasks = List.generate(_depots.length, (index) => _depots.elementAt(index).close(deleteFromDisk: deleteFromDisk));
+    await Future.wait(tasks);
+  }
+
   /// Get a [Depot] by id
-  static Depot depot(String id) =>
-      _depots.firstWhere((element) => element.config.id == id);
+  static Depot depot(String id) => _depots.firstWhere((element) => element.config.id == id);
 }

@@ -18,3 +18,7 @@
 ## 1.0.5
 
 * Added the abort reason to the abort stream
+
+## 1.0.6
+
+* Added the `dispose` function to the **Mapplet** main class

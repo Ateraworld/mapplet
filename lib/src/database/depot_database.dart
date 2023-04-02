@@ -128,7 +128,7 @@ class DepotDatabase {
   /// Close **Isar**'s instances
   ///
   /// If [deleteFromDisk] is `true`, delete all data
-  Future<bool> close({bool deleteFromDisk = false}) async => await db.close(deleteFromDisk: deleteFromDisk);
+  Future<bool> close({bool deleteFromDisk = false}) => db.close(deleteFromDisk: deleteFromDisk);
 
   /// Add a single tile to the database
   ///

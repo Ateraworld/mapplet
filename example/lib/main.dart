@@ -3,7 +3,7 @@ import "package:latlong2/latlong.dart";
 import "package:mapplet/mapplet.dart";
 
 Future<void> main() async {
-  await Mapplet.initiate([
+  await Mapplet.initialize([
     DepotConfiguration(
       id: "default_depot",
       urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
