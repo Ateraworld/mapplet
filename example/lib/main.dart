@@ -1,12 +1,14 @@
 import "package:flutter/material.dart";
 import "package:latlong2/latlong.dart";
 import "package:mapplet/mapplet.dart";
+import "package:path_provider/path_provider.dart";
 
 Future<void> main() async {
   await Mapplet.initialize([
     DepotConfiguration(
       id: "default_depot",
       urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      directory: (await getApplicationDocumentsDirectory()).path,
       minZoom: 10,
       maxZoom: 16,
     ),

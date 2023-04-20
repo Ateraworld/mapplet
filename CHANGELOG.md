@@ -22,3 +22,11 @@
 ## 1.0.6
 
 * Added the `dispose` function to the **Mapplet** main class
+
+## 1.1.0
+
+* Updated **Isar** to major version _3.1.0_
+
+### ❗Breaking changes
+
+* `DepotConfiguration` now requires a directory in order to adapt to **Isar** _3.1.0_

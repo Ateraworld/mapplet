@@ -14,6 +14,7 @@ dependencies:
     mapplet:
         path: ../../mapplet
     latlong2: ^0.8.1
+    path_provider: ^2.0.14
 
 dev_dependencies:
     flutter_test:

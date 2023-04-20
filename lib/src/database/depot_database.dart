@@ -31,6 +31,7 @@ class DepotDatabase {
 
     var db = Isar.openSync(
       [TileModelSchema, RegionModelSchema],
+      directory: config.directory,
       name: config.id,
       inspector: false,
       maxSizeMiB: config.maxSizeMiB,
@@ -65,8 +66,10 @@ class DepotDatabase {
   static Future<bool> _deleteRegionIsolate(List<Object> args) async {
     var config = args[0] as DepotConfiguration;
     var regionId = args[1] as String;
+
     var db = Isar.openSync(
       [TileModelSchema, RegionModelSchema],
+      directory: config.directory,
       name: config.id,
       inspector: false,
       maxSizeMiB: config.maxSizeMiB,
@@ -101,10 +104,10 @@ class DepotDatabase {
   /// Returns the instance of the created class
   static Future<DepotDatabase> open(DepotConfiguration config) async {
     var data = DepotDatabase._(config);
-
     data.db = await Isar.open(
       [TileModelSchema, RegionModelSchema],
       name: config.id,
+      directory: config.directory,
       inspector: config.debugIsarConsole,
       maxSizeMiB: config.maxSizeMiB,
     );

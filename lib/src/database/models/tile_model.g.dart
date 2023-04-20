@@ -9,7 +9,7 @@ part of 'tile_model.dart';
 // **************************************************************************
 
 // coverage:ignore-file
-// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
 
 extension GetTileModelCollection on Isar {
   IsarCollection<TileModel> get tileModels => this.collection();
@@ -51,7 +51,7 @@ const TileModelSchema = CollectionSchema(
   getId: _tileModelGetId,
   getLinks: _tileModelGetLinks,
   attach: _tileModelAttach,
-  version: '3.0.5',
+  version: '3.1.0',
 );
 
 int _tileModelEstimateSize(
@@ -121,8 +121,7 @@ List<IsarLinkBase<dynamic>> _tileModelGetLinks(TileModel object) {
 
 void _tileModelAttach(IsarCollection<dynamic> col, Id id, TileModel object) {}
 
-extension TileModelQueryWhereSort
-    on QueryBuilder<TileModel, TileModel, QWhere> {
+extension TileModelQueryWhereSort on QueryBuilder<TileModel, TileModel, QWhere> {
   QueryBuilder<TileModel, TileModel, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
@@ -130,8 +129,7 @@ extension TileModelQueryWhereSort
   }
 }
 
-extension TileModelQueryWhere
-    on QueryBuilder<TileModel, TileModel, QWhereClause> {
+extension TileModelQueryWhere on QueryBuilder<TileModel, TileModel, QWhereClause> {
   QueryBuilder<TileModel, TileModel, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
@@ -163,8 +161,7 @@ extension TileModelQueryWhere
     });
   }
 
-  QueryBuilder<TileModel, TileModel, QAfterWhereClause> idGreaterThan(Id id,
-      {bool include = false}) {
+  QueryBuilder<TileModel, TileModel, QAfterWhereClause> idGreaterThan(Id id, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: id, includeLower: include),
@@ -172,8 +169,7 @@ extension TileModelQueryWhere
     });
   }
 
-  QueryBuilder<TileModel, TileModel, QAfterWhereClause> idLessThan(Id id,
-      {bool include = false}) {
+  QueryBuilder<TileModel, TileModel, QAfterWhereClause> idLessThan(Id id, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: id, includeUpper: include),
@@ -198,10 +194,8 @@ extension TileModelQueryWhere
   }
 }
 
-extension TileModelQueryFilter
-    on QueryBuilder<TileModel, TileModel, QFilterCondition> {
-  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> bytesElementEqualTo(
-      int value) {
+extension TileModelQueryFilter on QueryBuilder<TileModel, TileModel, QFilterCondition> {
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> bytesElementEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'bytes',
@@ -210,8 +204,7 @@ extension TileModelQueryFilter
     });
   }
 
-  QueryBuilder<TileModel, TileModel, QAfterFilterCondition>
-      bytesElementGreaterThan(
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> bytesElementGreaterThan(
     int value, {
     bool include = false,
   }) {
@@ -224,8 +217,7 @@ extension TileModelQueryFilter
     });
   }
 
-  QueryBuilder<TileModel, TileModel, QAfterFilterCondition>
-      bytesElementLessThan(
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> bytesElementLessThan(
     int value, {
     bool include = false,
   }) {
@@ -255,8 +247,7 @@ extension TileModelQueryFilter
     });
   }
 
-  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> bytesLengthEqualTo(
-      int length) {
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> bytesLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
         r'bytes',
@@ -307,8 +298,7 @@ extension TileModelQueryFilter
     });
   }
 
-  QueryBuilder<TileModel, TileModel, QAfterFilterCondition>
-      bytesLengthGreaterThan(
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> bytesLengthGreaterThan(
     int length, {
     bool include = false,
   }) {
@@ -340,8 +330,7 @@ extension TileModelQueryFilter
     });
   }
 
-  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> idEqualTo(
-      Id value) {
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'id',
@@ -393,8 +382,7 @@ extension TileModelQueryFilter
     });
   }
 
-  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> linksEqualTo(
-      int value) {
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> linksEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'links',
@@ -446,8 +434,7 @@ extension TileModelQueryFilter
     });
   }
 
-  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> timestampEqualTo(
-      int value) {
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> timestampEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'timestamp',
@@ -456,8 +443,7 @@ extension TileModelQueryFilter
     });
   }
 
-  QueryBuilder<TileModel, TileModel, QAfterFilterCondition>
-      timestampGreaterThan(
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> timestampGreaterThan(
     int value, {
     bool include = false,
   }) {
@@ -588,9 +574,7 @@ extension TileModelQueryFilter
     });
   }
 
-  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> urlContains(
-      String value,
-      {bool caseSensitive = true}) {
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> urlContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
         property: r'url',
@@ -600,9 +584,7 @@ extension TileModelQueryFilter
     });
   }
 
-  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> urlMatches(
-      String pattern,
-      {bool caseSensitive = true}) {
+  QueryBuilder<TileModel, TileModel, QAfterFilterCondition> urlMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
         property: r'url',
@@ -631,11 +613,9 @@ extension TileModelQueryFilter
   }
 }
 
-extension TileModelQueryObject
-    on QueryBuilder<TileModel, TileModel, QFilterCondition> {}
+extension TileModelQueryObject on QueryBuilder<TileModel, TileModel, QFilterCondition> {}
 
-extension TileModelQueryLinks
-    on QueryBuilder<TileModel, TileModel, QFilterCondition> {}
+extension TileModelQueryLinks on QueryBuilder<TileModel, TileModel, QFilterCondition> {}
 
 extension TileModelQuerySortBy on QueryBuilder<TileModel, TileModel, QSortBy> {
   QueryBuilder<TileModel, TileModel, QAfterSortBy> sortByLinks() {
@@ -675,8 +655,7 @@ extension TileModelQuerySortBy on QueryBuilder<TileModel, TileModel, QSortBy> {
   }
 }
 
-extension TileModelQuerySortThenBy
-    on QueryBuilder<TileModel, TileModel, QSortThenBy> {
+extension TileModelQuerySortThenBy on QueryBuilder<TileModel, TileModel, QSortThenBy> {
   QueryBuilder<TileModel, TileModel, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -726,8 +705,7 @@ extension TileModelQuerySortThenBy
   }
 }
 
-extension TileModelQueryWhereDistinct
-    on QueryBuilder<TileModel, TileModel, QDistinct> {
+extension TileModelQueryWhereDistinct on QueryBuilder<TileModel, TileModel, QDistinct> {
   QueryBuilder<TileModel, TileModel, QDistinct> distinctByBytes() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'bytes');
@@ -746,16 +724,14 @@ extension TileModelQueryWhereDistinct
     });
   }
 
-  QueryBuilder<TileModel, TileModel, QDistinct> distinctByUrl(
-      {bool caseSensitive = true}) {
+  QueryBuilder<TileModel, TileModel, QDistinct> distinctByUrl({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'url', caseSensitive: caseSensitive);
     });
   }
 }
 
-extension TileModelQueryProperty
-    on QueryBuilder<TileModel, TileModel, QQueryProperty> {
+extension TileModelQueryProperty on QueryBuilder<TileModel, TileModel, QQueryProperty> {
   QueryBuilder<TileModel, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');

@@ -4,6 +4,7 @@ class DepotConfiguration {
     required this.urlTemplate,
     required this.minZoom,
     required this.maxZoom,
+    required this.directory,
     this.parallelBatchWriters = 8,
     this.fetchTileAttempts = 4,
     this.fetchMaxHeapSizeMiB = 256,
@@ -15,6 +16,16 @@ class DepotConfiguration {
     this.tilesStoreEvictPeriod,
     this.fetchTileTimeout,
   });
+
+  /// Base directory for the depot
+  ///
+  /// It is recommended to use the package `path_provider` to request a standard directory available in all platforms:
+  ///
+  /// ```dart
+  /// var dir = await getApplicationDocumentsDirectory();
+  /// var path = dir.path;
+  /// ```
+  final String directory;
 
   /// Maximum number of concurrent writers on the database during the fetch operation
   ///

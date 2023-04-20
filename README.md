@@ -34,7 +34,7 @@ await Mapplet.initiate([
             id: String,
             minZoom: double,
             maxZoom: double,
-            directory: (await getApplicationDocumentsDirectory()).path,
+            directory: String,
             urlTemplate: String
         ),
         ...
@@ -42,7 +42,10 @@ await Mapplet.initiate([
 ```
 
 Each configuration specified here will result in a single `Depot` being created under the hood.
-`getApplicationDocumentsDirectory()` is a function of [path_provider](https://pub.dev/packages/path_provider) package.
+
+❗Version **^1.1.0**
+
+* `DepotConfiguration` requires the directory field. It is recommended to use the package [path_provider](https://pub.dev/packages/path_provider) to request a directory location that adapts to different platforms using `getApplicationDocumentsDirectory()`.
 
 ## Usage
 
