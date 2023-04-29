@@ -43,7 +43,7 @@ const RegionModelSchema = CollectionSchema(
   getId: _regionModelGetId,
   getLinks: _regionModelGetLinks,
   attach: _regionModelAttach,
-  version: '3.1.0',
+  version: '3.1.0+1',
 );
 
 int _regionModelEstimateSize(

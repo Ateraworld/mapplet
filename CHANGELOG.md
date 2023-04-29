@@ -30,3 +30,7 @@
 ### ❗Breaking changes
 
 * `DepotConfiguration` now requires a directory in order to adapt to **Isar** _3.1.0_
+
+## 1.1.1
+
+* Updated **Isar** to version _3.1.0+1_

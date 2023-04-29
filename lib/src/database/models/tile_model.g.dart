@@ -51,7 +51,7 @@ const TileModelSchema = CollectionSchema(
   getId: _tileModelGetId,
   getLinks: _tileModelGetLinks,
   attach: _tileModelAttach,
-  version: '3.1.0',
+  version: '3.1.0+1',
 );
 
 int _tileModelEstimateSize(
