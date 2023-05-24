@@ -1,6 +1,7 @@
 import "dart:math";
 
 import "package:flutter_map/flutter_map.dart";
+import "package:geolocator/geolocator.dart";
 import "package:latlong2/latlong.dart";
 import "package:meta/meta.dart";
 
@@ -24,38 +25,31 @@ extension DbHashExtensions on String {
 
 extension LatLngBoundsExtensions on LatLngBounds {
   /// Get the coordinates for the current [LatLngBounds] at the provided zoom levels
-  List<Coords<num>> coords(
+  List<TileCoordinates> coords(
     int minZoom,
     int maxZoom, {
     num tileSize = 256,
     Crs? crs,
   }) {
     crs ??= const Epsg3857();
-    CustomPoint<num> tileSizePoint = CustomPoint(tileSize, tileSize);
+    CustomPoint<double> tileSizePoint = CustomPoint(tileSize.toDouble(), tileSize.toDouble());
 
     return List.generate(
       maxZoom - (minZoom - 1),
       (z) {
         final zoomLevel = minZoom + z;
 
-        final nwt = crs!
-            .latLngToPoint(northWest, zoomLevel.toDouble())
-            .unscaleBy(tileSizePoint)
-            .floor();
+        final nwt = crs!.latLngToPoint(northWest, zoomLevel.toDouble()).unscaleBy(tileSizePoint).floor();
         final nw = CustomPoint<int>(nwt.x, nwt.y);
 
-        final set = crs
-                .latLngToPoint(southEast, zoomLevel.toDouble())
-                .unscaleBy(tileSizePoint)
-                .ceil() -
-            const CustomPoint(1, 1);
+        final set = crs.latLngToPoint(southEast, zoomLevel.toDouble()).unscaleBy(tileSizePoint).ceil() - const CustomPoint(1, 1);
         final se = CustomPoint<int>(set.x, set.y);
 
         return List.generate(
           se.x - (nw.x - 1),
           (x) => List.generate(
             se.y - (nw.y - 1),
-            (y) => Coords(nw.x + x, nw.y + y)..z = zoomLevel,
+            (y) => TileCoordinates(nw.x + x, nw.y + y, zoomLevel),
             growable: false,
           ),
           growable: false,
@@ -80,10 +74,13 @@ extension LatLngBoundsExtensions on LatLngBounds {
     const earthRadiusKm = 6378.137;
     const toRad = 180 / pi;
     var newX = point.latitude + ((dx / earthRadiusKm) * toRad);
-    var newY = point.longitude +
-        (((dy / earthRadiusKm) * toRad) / cos(point.latitude * (1 / toRad)));
+    var newY = point.longitude + (((dy / earthRadiusKm) * toRad) / cos(point.latitude * (1 / toRad)));
     return LatLng(newX, newY);
   }
+}
+
+extension PositionExtensions on Position {
+  LatLng toLatLng() => LatLng(latitude, longitude);
 }
 
 extension IntExtensions on int {
@@ -100,8 +97,7 @@ extension LatLngExtensions on LatLng {
     var dLon = (longitude - other.longitude) * toRad;
     var sLat = sin(dLat / 2);
     var sLon = sin(dLon / 2);
-    var a = sLat * sLat +
-        sLon * sLon * cos(other.latitude * toRad) * cos(latitude * toRad);
+    var a = sLat * sLat + sLon * sLon * cos(other.latitude * toRad) * cos(latitude * toRad);
     var c = 2 * asin(sqrt(a));
     return c * earthRadius;
   }

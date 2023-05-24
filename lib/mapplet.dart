@@ -17,6 +17,10 @@ export "package:mapplet/src/depot/fetch_operation.dart" hide TileFetchReport;
 
 export "package:mapplet/src/providers/map_tile_provider.dart";
 
+export "package:mapplet/src/widgets/location_watcher/location_watcher_layer.dart";
+export "package:mapplet/src/widgets/location_watcher/payloads.dart";
+export "package:mapplet/src/widgets/location_watcher/tweens.dart";
+
 /// Entry point for handling offline maps with **Mapplet**
 class Mapplet {
   static final List<Depot> _depots = List.empty(growable: true);

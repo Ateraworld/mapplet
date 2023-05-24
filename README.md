@@ -7,6 +7,8 @@
 **Mapplet** has been designed with simplicity in mind.
 The code has been provided with the strict necessary to allow developers to store maps for offline usage using the packet [flutter_map](https://pub.dev/packages/flutter_map).
 
+Also, it includes a useful layer for **flutter_map** that allows to easily display the user's current location automatically.
+
 ### Definitions
 
 **`Region`**
@@ -21,6 +23,7 @@ The code has been provided with the strict necessary to allow developers to stor
 * Save space: **Mapplet** detects already stored tiles shared among regions inside each `Depot` and prevent redownload automatically
 * Parallel fetch: region tiles are fetched with multiple workers and written in batches on the internal database. This allows for _transaction-like_ operations with clean `abort` and `commit`.
 * Extremely fast learning curve: **Mapplet** exposes only the strictly necessary to the developer. With a single point of configuration, integrating the package in projects is very easy.
+* A simple and ready to use layer for **flutter_map** that allows to easily display the user's current location automatically.
 
 ## Getting started
 
@@ -117,3 +120,38 @@ Extensions subjects:
 * `int`
 * `LatLng`
 * `List<LatLng>`
+
+## Current location layer
+
+**Mapplet** includes also a useful layer to automatically display the user's current location in the map.
+
+To access it, simply add the `LocationWatcherLayer` to **flutter_map**:
+
+```dart
+LocationWatcherLayer(
+    positionStream: _positionStream.stream,
+    style: LocationWatcherLayerStyle(
+        showAccuracyCircle: false,
+        directionRadius: 64,
+        directionAngle: 80,
+        showDirection: widget.showDirectionSector,
+        markerSize: const Size.square(20),
+        directionColor: Colors.red,
+        locationMarker: DecoratedBox(
+        decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+        ),
+        child: Padding(
+            padding: const EdgeInsets.all(2),
+            child: DecoratedBox(
+            decoration: BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+            ),
+            ),
+        ),
+        ),
+    ),
+)
+```

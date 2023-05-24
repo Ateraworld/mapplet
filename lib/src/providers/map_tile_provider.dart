@@ -13,6 +13,6 @@ class MappletTileProvider extends TileProvider {
   final Depot depot;
 
   @override
-  ImageProvider<Object> getImage(Coords<num> coords, TileLayer options) =>
-      MappletTileImageProvider(depot: depot, options: options, coords: coords);
+  ImageProvider<Object> getImage(TileCoordinates coordinates, TileLayer options) =>
+      MappletTileImageProvider(depot: depot, options: options, coords: coordinates);
 }

@@ -34,3 +34,11 @@
 ## 1.1.1
 
 * Updated **Isar** to version _3.1.0+1_
+
+## 2.0.0
+
+### ❗Breaking changes
+
+* Updated **flutter_map** to version _4.0.0_
+* Added the `LocationWatcherLayer` to display the user's current location
+
