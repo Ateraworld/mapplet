@@ -22,6 +22,23 @@ class PositionPayloadTween extends Tween<PositionPayload> {
   }
 }
 
+double _lerp(double begin, double end, double t) => begin + (end - begin) * t;
+
+double _invert(double value) => (value + 180) % 360;
+
+double _circularLerpDegrees(double begin, double end, double t) {
+  const circ = 360;
+  begin = begin % circ;
+  end = end % circ;
+  final cmp = (end - begin).abs().compareTo(circ / 2);
+  final hasCrossed = cmp == 1 || (cmp == 0 && begin != end && begin >= circ / 2);
+  if (hasCrossed) {
+    return _invert(_lerp(_invert(begin), _invert(end), t));
+  } else {
+    return _lerp(begin, end, t);
+  }
+}
+
 class DirectionPayloadTween extends Tween<DirectionPayload> {
   DirectionPayloadTween({
     required super.begin,
@@ -32,10 +49,9 @@ class DirectionPayloadTween extends Tween<DirectionPayload> {
   DirectionPayload lerp(double t) {
     final begin = this.begin!;
     final end = this.end!;
-    var dirTween = Tween<double>(begin: begin.direction, end: end.direction);
-    var accTween = Tween<double>(begin: begin.accuracy, end: end.accuracy);
+    final accTween = Tween(begin: begin.accuracy, end: end.accuracy);
     return DirectionPayload(
-      direction: dirTween.transform(t),
+      direction: _circularLerpDegrees(begin.direction, end.direction, t),
       accuracy: accTween.transform(t),
     );
   }

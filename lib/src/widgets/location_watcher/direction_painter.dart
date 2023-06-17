@@ -6,14 +6,14 @@ class DirectionPainter extends CustomPainter {
     required this.color,
     this.opacities,
     required this.direction,
-    required this.angle,
+    required this.sweepAngle,
   });
   final List<double>? opacities;
   final Color color;
   final double direction;
-  final double angle;
+  final double sweepAngle;
 
-  double radians(double angle) => 0.01745329252 * angle;
+  double radians(double angle) => angle * 0.0174533;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -22,8 +22,8 @@ class DirectionPainter extends CustomPainter {
     var opList = opacities ?? [1.0, 0.75, 0.5, 0.25, 0];
     canvas.drawArc(
       rect,
-      pi * 3 / 2 + radians(direction) - radians(angle),
-      radians(angle),
+      radians(direction) - pi / 2 - (radians(sweepAngle) / 2),
+      radians(sweepAngle),
       true,
       Paint()
         ..shader = RadialGradient(colors: List.generate(opList.length, (index) => color.withOpacity(color.opacity * opList[index])))
@@ -33,5 +33,5 @@ class DirectionPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(DirectionPainter oldDelegate) =>
-      oldDelegate.color != color || oldDelegate.direction != direction || oldDelegate.angle != angle;
+      oldDelegate.color != color || oldDelegate.direction != direction || oldDelegate.sweepAngle != sweepAngle;
 }

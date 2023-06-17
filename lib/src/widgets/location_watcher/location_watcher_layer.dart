@@ -131,7 +131,9 @@ class _LocationWatcherLayerState extends State<LocationWatcherLayer> with Ticker
     var tween = DirectionPayloadTween(begin: _currentDirection ?? event, end: event);
     final animation = CurvedAnimation(parent: _directionAnimController!, curve: style.directionAnimCurve);
 
-    _directionAnimController!.addListener(() => setState(() => _currentDirection = tween.evaluate(animation)));
+    _directionAnimController!.addListener(() {
+      setState(() => _currentDirection = tween.evaluate(animation));
+    });
 
     _directionAnimController!.addStatusListener((AnimationStatus status) {
       if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
@@ -162,8 +164,9 @@ class _LocationWatcherLayerState extends State<LocationWatcherLayer> with Ticker
     } else {
       var dirStream = FlutterCompass.events;
       if (dirStream != null) {
-        _directionSub = FlutterCompass.events!
-            .listen((event) => _driveDirectionAnimation(DirectionPayload(direction: event.heading ?? 0, accuracy: event.accuracy ?? 0)));
+        _directionSub = FlutterCompass.events!.listen((event) {
+          _driveDirectionAnimation(DirectionPayload(direction: event.heading ?? 0, accuracy: event.accuracy ?? 0));
+        });
       }
     }
   }
@@ -207,7 +210,7 @@ class _LocationWatcherLayerState extends State<LocationWatcherLayer> with Ticker
                       painter: DirectionPainter(
                         color: style.directionColor,
                         direction: _currentDirection!.direction,
-                        angle: style.directionAngle ?? _currentDirection!.accuracy * 2,
+                        sweepAngle: style.directionAngle ?? _currentDirection!.accuracy * 2,
                       ),
                     ),
                   );
