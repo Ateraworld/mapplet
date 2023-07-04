@@ -34,29 +34,30 @@ extension LatLngBoundsExtensions on LatLngBounds {
     crs ??= const Epsg3857();
     CustomPoint<double> tileSizePoint = CustomPoint(tileSize.toDouble(), tileSize.toDouble());
 
-    return List.generate(
-      maxZoom - (minZoom - 1),
-      (z) {
-        final zoomLevel = minZoom + z;
+    int size = 0;
+    for (int zoom = 0; zoom < (maxZoom - (minZoom - 1)); zoom++) {
+      final zoomLevel = minZoom + zoom;
+      final nwPoint = crs.latLngToPoint(northWest, zoomLevel.toDouble()).unscaleBy(tileSizePoint).floor();
+      final sePoint = crs.latLngToPoint(southEast, zoomLevel.toDouble()).unscaleBy(tileSizePoint).ceil() - const CustomPoint(1, 1);
+      size += (sePoint.x - (nwPoint.x - 1)) * (sePoint.y - (nwPoint.y - 1));
+    }
 
-        final nwt = crs!.latLngToPoint(northWest, zoomLevel.toDouble()).unscaleBy(tileSizePoint).floor();
-        final nw = CustomPoint<int>(nwt.x, nwt.y);
+    List<TileCoordinates> coordinates = List.generate(size, (index) => const TileCoordinates(0, 0, 0), growable: false);
 
-        final set = crs.latLngToPoint(southEast, zoomLevel.toDouble()).unscaleBy(tileSizePoint).ceil() - const CustomPoint(1, 1);
-        final se = CustomPoint<int>(set.x, set.y);
-
-        return List.generate(
-          se.x - (nw.x - 1),
-          (x) => List.generate(
-            se.y - (nw.y - 1),
-            (y) => TileCoordinates(nw.x + x, nw.y + y, zoomLevel),
-            growable: false,
-          ),
-          growable: false,
-        );
-      },
-      growable: false,
-    ).expand((e) => e).expand((e) => e).toList(growable: false);
+    int index = 0;
+    for (int zoom = 0; zoom < (maxZoom - (minZoom - 1)); zoom++) {
+      final zoomLevel = minZoom + zoom;
+      final nwPoint = crs.latLngToPoint(northWest, zoomLevel.toDouble()).unscaleBy(tileSizePoint).floor();
+      final sePoint = crs.latLngToPoint(southEast, zoomLevel.toDouble()).unscaleBy(tileSizePoint).ceil() - const CustomPoint(1, 1);
+      final xSize = sePoint.x - (nwPoint.x - 1);
+      final ySize = sePoint.y - (nwPoint.y - 1);
+      for (int x = 0; x < xSize; x++) {
+        for (int y = 0; y < ySize; y++) {
+          coordinates[index++] = TileCoordinates(nwPoint.x + x, nwPoint.y + y, zoomLevel);
+        }
+      }
+    }
+    return coordinates;
   }
 
   /// Create a [LatLngBounds] specifying its center and the distance from center
